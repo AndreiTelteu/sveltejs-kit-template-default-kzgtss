@@ -1,14 +1,14 @@
 <script context="module">
 	import { browser, dev } from '$app/env';
 	import axios from 'axios'
-	export const hydrate = dev;
-	export const router = browser;
+	export const hydrate = true;
+	export const router = true;
 	export const prerender = false;
 
 	export async function load({ params }) {
 		const { id } = params;
 		let produs = [];
-		let { data } = await axios.get(`https://fakestoreapi.com/products/${id}`);
+		let { data } = await axios.get(`https://dummyjson.com/products/${id}`);
 		produs = data;
 		return {
 			props: { produs },

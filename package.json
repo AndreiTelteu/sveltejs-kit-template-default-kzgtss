@@ -27,6 +27,7 @@
 		"@fontsource/fira-mono": "^4.5.0",
 		"@formkit/auto-animate": "^1.0.0-beta.1",
 		"axios": "^0.27.2",
-		"cookie": "^0.4.1"
+		"cookie": "^0.4.1",
+		"fuse.js": "^6.6.2"
 	}
 }
