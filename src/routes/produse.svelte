@@ -85,16 +85,28 @@
             {#if loading == true}
                 <span>loading</span>
             {:else}
-                <ul use:autoAnimate>
+                <div use:autoAnimate style="appearance: none; display: flex; flex-direction: row; flex-wrap: wrap; width: 100%;">
                     {#each produse as produs}
-                        <li>
-                            <a href="/produs/{produs.id}">{produs.title} (cat: {produs.category})</a>
-                            <button type="button" on:click={() => cart.add(produs)}>
-                                add to cart
-                            </button>
-                        </li>
+                        <div style="width: 200px; display: inline-block; border-bottom: 1px solid #ccc; margin: 10px; background: #fff;">
+                            <a href="/produs/{produs.id}" style="display: flex; flex-direction: column; justify-content: center;">
+                                <div style="width: 100%; text-align: center; border-bottom: 1px solid #ccc; padding: 10px;">
+                                    {#if produs.thumbnail}
+                                        <img src={produs.thumbnail} alt=" " style="width: 100%; height: 80px; object-fit: contain;" />
+                                    {/if}
+                                </div>
+                                <div style="padding: 10px;">
+                                    {produs.title} <br> {produs.category}
+                                </div>
+                            </a>
+                            <div style="text-align: center; border-top: 1px solid #ccc; padding: 10px;">
+                                ${produs.price} <br>
+                                <button type="button" on:click={() => cart.add(produs)}>
+                                    add to cart
+                                </button>
+                            </div>
+                        </div>
                     {/each}
-                </ul>
+                    </div>
             {/if}
         </div>
         <form

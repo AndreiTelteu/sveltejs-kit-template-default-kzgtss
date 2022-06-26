@@ -7,12 +7,6 @@ export type Product = {
 }
 
 export type CartProduct = Product & {
-    key?: string,
-    qty?: number,
-}
-
-export type Cart = {
-    items: CartProduct[],
-    count: number,
-    total: number,
+    key: string,
+    qty: number,
 }

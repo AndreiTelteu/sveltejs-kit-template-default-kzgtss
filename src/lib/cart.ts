@@ -1,98 +1,100 @@
-import { writable, type Writable, get } from 'svelte/store';
-import type { Product, CartProduct, Cart } from '$types';
+import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
+import type { Product, CartProduct } from '$types';
 import _ from 'lodash';
 
-interface CartStore extends Writable<Cart> {
-    add?: Function,
-    edit?: Function,
-    delete?: Function,
-    reset?: Function,
+interface CartStore {
+    items: Writable<CartProduct[]>,
+    count: Readable<number>,
+    total: Readable<number>,
+    add: Function,
+    edit: Function,
+    remove: Function,
+    reset: Function,
 }
 
-function initialCart(loadFromStorage = true): Cart {
+function initialCartItems(loadFromStorage = true): CartProduct[] {
+    let items = [];
     if (loadFromStorage) {
         try {
-            let cartStorage: any = localStorage.getItem('cart-svelte');
+            let cartStorage: any = localStorage.getItem('cart-v2-svelte');
             cartStorage = JSON.parse(cartStorage);
-            if (cartStorage) return cartStorage;
+            if (cartStorage) items = cartStorage;
         } catch (e) {}
     }
-    return {
-        items: [],
-        count: 0,
-        total: 0,
-    }
+    return items;
 }
 
-function createCart() {
-	const cart: CartStore = {...writable(initialCart(true))};
-    
-    function refresh(state: Cart) {
-        state.count = 0;
-        state.total = 0;
-        state.items.forEach((item: CartProduct) => {
-            let qty = item.qty || 1;
-            state.count += qty;
-            state.total += item.price * qty;
-        });
-        try {
-            localStorage.setItem('cart-svelte', JSON.stringify(state));
-        } catch (e) {}
-    }
-    
-    cart.add = (item: Product) => {
-        let existingItem = get(cart).items.find((cartItem: CartProduct) => cartItem.id == item.id);
-        if (existingItem && typeof existingItem !== 'undefined') {
-            cart?.edit?.(existingItem?.key, {
-                qty: (existingItem?.qty || 0) + 1,
-            });
-            return;
-        }
-        cart.update(state => {
-            let product: CartProduct = {
-                ...item,
-                qty: 1,
-                key: `ky-${item.id}-${Date.now()}`,
-            };
-            state.items.push(product);
-            refresh(state);
-            return state;
-        });
-    }
-    
-    cart.edit = (key: string, toUpdate: CartProduct) => {
-        if (typeof toUpdate?.qty !== 'undefined' && toUpdate?.qty < 1) {
-            return cart?.delete?.(key);
-        }
-        cart.update(state => {
-            let items = _.cloneDeep(state.items);
-            state.items = items.map((item: CartProduct) => {
-                if (item.key == key) {
-                    return {...item, ...toUpdate};
-                }
-                return item;
-            });
-            refresh(state);
-            return state;
-        });
-    }
-    
-    cart.delete = (key: string) => {
-        cart.update(state => {
-            let items = _.cloneDeep(state.items);
-            state.items = items.filter((item: CartProduct) => {
-                return (item.key !== key);
-            });
-            refresh(state);
-            return state;
-        });
-    }
-    
-    cart.reset = () => {
-        cart.set(initialCart(false));
-    }
-    
-	return cart;
+export const items: Writable<CartProduct[]> = writable(initialCartItems(true));
+export const count: Readable<number> = derived(items, ($items): number => {
+    return $items.map(i => i.qty).reduce((a, b) => a + b, 0);
+});
+export const total: Readable<number> = derived(items, ($items): number => {
+    return $items.map(i => i.price * i.qty).reduce((a, b) => a + b, 0);
+});
+
+const save = (value: any): any => {
+    try {
+        localStorage.setItem('cart-v2-svelte', JSON.stringify(value));
+    } catch (e) {}
+    return value;
 }
 
-export default createCart();
+export const add = (item: Product) => {
+    let existingItem = get(items).find((cartItem: CartProduct) => cartItem.id == item.id);
+    if (existingItem && typeof existingItem !== 'undefined') {
+        edit(existingItem.key, {
+            qty: (existingItem.qty || 0) + 1,
+        });
+        return;
+    }
+    items.update(state => {
+        let product: CartProduct = {
+            ...item,
+            qty: 1,
+            key: `key-${item.id}-${Date.now()}`,
+        };
+        state.push(product);
+        return save(state);
+    });
+}
+
+export const edit = (key: string, toUpdate: any) => {
+    if (typeof toUpdate?.qty !== 'undefined' && toUpdate?.qty < 1) {
+        return remove(key);
+    }
+    items.update(state => {
+        let newItems = _.cloneDeep(state);
+        newItems = newItems.map((item: CartProduct) => {
+            if (item.key == key) {
+                return {...item, ...toUpdate};
+            }
+            return item;
+        });
+        return save(newItems);
+    });
+}
+
+export const remove = (key: string) => {
+    items.update(state => {
+        let newItems = _.cloneDeep(state);
+        newItems = newItems.filter((item: CartProduct) => {
+            return (item.key !== key);
+        });
+        return save(newItems);
+    });
+}
+
+export const reset = () => {
+    items.set(save(initialCartItems(false)));
+}
+
+const cart: CartStore = {
+    items,
+    count,
+    total,
+    add,
+    edit,
+    remove,
+    reset,
+}
+export default cart;

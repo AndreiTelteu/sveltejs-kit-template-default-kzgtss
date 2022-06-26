@@ -26,17 +26,23 @@
     <meta name="description" content="{produs.description}" />
 </svelte:head>
 
-<h1>
-	{ produs.title }
-</h1>
-<div>
-	<button type="button" on:click={() => cart.add(produs)}>
-		add to cart
-	</button>
+<div style="display: flex; flex-direction: row; align-items: center; width: 100%;">
+	<div style="width: 400px;">
+		{#if produs.thumbnail}
+			<img src={produs.thumbnail} alt=" " style="width: 100%;  object-fit: contain;" />
+		{/if}
+	</div>
+	<div style="flex: 1; text-align: center;">
+		<h1>{ produs.title }</h1>
+		<h1>${ produs.price }</h1>
+		<button type="button" on:click={() => cart.add(produs)}>
+			add to cart
+		</button>
+	</div>
 </div>
+
 <h3>
-	price { produs.price } <br />
-	category { produs.category }
+	category: { produs.category }
 </h3>
 <div>
 	{ produs.description }

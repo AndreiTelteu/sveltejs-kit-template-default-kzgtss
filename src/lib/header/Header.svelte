@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import logo from './svelte-logo.svg';
-	import cart from '$lib/cart';
+	import cart, {items as cartItems, count as cartCount, total as cartTotal } from '$lib/cart';
     import autoAnimate from '@formkit/auto-animate';
 </script>
 
@@ -18,29 +18,32 @@
 
 	<div class="corner">
 		<!-- TODO put something else here? github link? -->
-		Cart count: {$cart.count}
+		Cart count: {$cartCount}
 		<div class="cart-popup">
-			<p style="padding: 10px;">Cart ({$cart.count})</p>
+			<p style="padding: 10px;">Cart ({$cartCount})</p>
 			<ul use:autoAnimate style="border-top: 1px solid #ccc; height: auto; display: flex; flex-direction: column;">
-				{#each $cart.items as product}
+				{#each $cartItems as product}
 					<li style="
 						border-bottom: 1px solid #ccc; width: 100%; flex-shrink: 0;
 						display: flex; flex-direction: row; align-items: center; justify: content;
 					">
+						<div style="padding: 10px;">
+							<img src={product.thumbnail} alt=" " style="width: 60px; height: 60px;" />
+						</div>
 						<div style="flex: 1; padding: 10px;">
 							{product.title}
 							<br>
-							{product.qty} x {product.price}
+							{product.qty} x ${product.price}
 							<button type="button" on:click={() => cart.edit(product.key, { qty: product.qty - 1 })}>-</button>
 							<button type="button" on:click={() => cart.edit(product.key, { qty: product.qty + 1 })}>+</button>
 						</div>
 						<div style="padding: 10px;">
-							<button type="button" on:click={() => cart.delete(product.key)}>X</button>
+							<button type="button" on:click={() => cart.remove(product.key)}>X</button>
 						</div>
 					</li>
 				{/each}
 			</ul>
-			<p style="padding: 10px;">Total: {$cart.total}</p>
+			<p style="padding: 10px;">Total: ${$cartTotal}</p>
 		</div>
 	</div>
 </header>
@@ -59,7 +62,7 @@
 		position: absolute;
 		width: 400px;
 		height: auto;
-		background-color:rgba(255, 255, 255, 0.7);
+		background-color:rgba(255, 255, 255, 0.95);
 		top: 100%;
 		right: 0;
 		opacity: 0;
