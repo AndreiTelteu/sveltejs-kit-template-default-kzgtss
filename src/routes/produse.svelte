@@ -33,7 +33,19 @@
     let filters = {
         search: '',
         category: null,
-    }
+    };
+    
+    $: filtersActive = (() => {
+        let f = [];
+        if (filters.search) {
+            f.push(['Keyword:', filters.search, 'search']);
+        }
+        if (filters.category != null) {
+            f.push(['Category:', filters.category, 'category']);
+        }
+        return f;
+    })();
+    
     function resetFilters() {
         filters = {
             search: '',
@@ -55,7 +67,7 @@
         }
         produse = data;
         loading = false;
-        console.log('filter results: ', data.length);
+        console.log('filter results: ', data.length, filtersActive);
         return false;
     }
 </script>
@@ -81,7 +93,10 @@
                 </ul>
             {/if}
         </div>
-        <form on:submit|preventDefault={applyFilters} class="filters" style="display: flex; flex-direction:column; gap: 20px;">
+        <form
+            on:submit|preventDefault={applyFilters}
+            style="display: flex; flex-direction:column; gap: 20px; width: 20%;"
+        >
             <label>
                 <b>Search</b>
                 <input name="search" bind:value={filters.search} style="width:100%;" />
@@ -95,6 +110,14 @@
                     {/each}
                 </select>
             </label>
+            <div use:autoAnimate>
+                {#each filtersActive as badge}
+                    <span style="background-color: aqua; border-radius: 6px; display: inline-block; padding: 2px 4px; margin-right: 10px">
+                        {badge[0]} <b>{badge[1]}</b>
+                        <span on:click={() => filters[badge[2]] = badge[2] == 'search' ? '' : null} style="cursor:pointer;">X</span>
+                    </span>
+                {/each}
+            </div>
             <div>
                 <button type="button" on:click={() => resetFilters()}>Reset</button>
                 <button type="submit">Apply</button>
