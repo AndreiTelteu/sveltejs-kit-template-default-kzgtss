@@ -6,26 +6,27 @@
 	export const prerender = false;
 
 	export async function load({ params }) {
-    const { id } = params;
+		const { id } = params;
 		let produs = [];
 		let { data } = await axios.get(`https://fakestoreapi.com/products/${id}`);
 		produs = data;
 		return {
-			props: { produs }
+			props: { produs },
 		};
 	}
 </script>
+
 <script>
-export let produs;
+	export let produs;
 </script>
 
 <h1>
-  { produs.title }
+	{ produs.title }
 </h1>
 <h3>
-  price { produs.price } <br />
-  category { produs.category }
+	price { produs.price } <br />
+	category { produs.category }
 </h3>
 <div>
-  { produs.description }
+	{ produs.description }
 </div>
