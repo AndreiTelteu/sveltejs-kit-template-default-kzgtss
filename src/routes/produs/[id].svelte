@@ -17,12 +17,23 @@
 </script>
 
 <script>
+	import cart from '$lib/cart';
 	export let produs;
 </script>
+
+<svelte:head>
+    <title>{produs.title}</title>
+    <meta name="description" content="{produs.description}" />
+</svelte:head>
 
 <h1>
 	{ produs.title }
 </h1>
+<div>
+	<button type="button" on:click={() => cart.add(produs)}>
+		add to cart
+	</button>
+</div>
 <h3>
 	price { produs.price } <br />
 	category { produs.category }

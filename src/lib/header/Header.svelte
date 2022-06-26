@@ -1,6 +1,8 @@
 <script>
 	import { page } from '$app/stores';
 	import logo from './svelte-logo.svg';
+	import cart from '$lib/cart';
+    import autoAnimate from '@formkit/auto-animate';
 </script>
 
 <header>
@@ -16,7 +18,30 @@
 
 	<div class="corner">
 		<!-- TODO put something else here? github link? -->
-		dsds
+		Cart count: {$cart.count}
+		<div class="cart-popup">
+			<p style="padding: 10px;">Cart ({$cart.count})</p>
+			<ul use:autoAnimate style="border-top: 1px solid #ccc; height: auto; display: flex; flex-direction: column;">
+				{#each $cart.items as product}
+					<li style="
+						border-bottom: 1px solid #ccc; width: 100%; flex-shrink: 0;
+						display: flex; flex-direction: row; align-items: center; justify: content;
+					">
+						<div style="flex: 1; padding: 10px;">
+							{product.title}
+							<br>
+							{product.qty} x {product.price}
+							<button type="button" on:click={() => cart.edit(product.key, { qty: product.qty - 1 })}>-</button>
+							<button type="button" on:click={() => cart.edit(product.key, { qty: product.qty + 1 })}>+</button>
+						</div>
+						<div style="padding: 10px;">
+							<button type="button" on:click={() => cart.delete(product.key)}>X</button>
+						</div>
+					</li>
+				{/each}
+			</ul>
+			<p style="padding: 10px;">Total: {$cart.total}</p>
+		</div>
 	</div>
 </header>
 
@@ -27,38 +52,31 @@
 	}
 
 	.corner {
-		width: 3em;
-		height: 3em;
+		position: relative;
+		padding: 10px 20px;
+	}
+	.corner .cart-popup {
+		position: absolute;
+		width: 400px;
+		height: auto;
+		background-color:rgba(255, 255, 255, 0.7);
+		top: 100%;
+		right: 0;
+		opacity: 0;
+		transform: translateX(100%);
+		transition: all 150ms ease-in-out;
+		border: 1px solid #ccc;
+	}
+	.corner:hover .cart-popup {
+		transform: translateX(0%);
+		opacity: 1;
 	}
 
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
-
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
-	}
 
 	nav {
 		display: flex;
 		justify-content: center;
-		--background: rgba(255, 255, 255, 0.7);
-	}
-
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
-
-	path {
-		fill: var(--background);
+		--background: rgba(255, 255, 255, 0.9);
 	}
 
 	ul {

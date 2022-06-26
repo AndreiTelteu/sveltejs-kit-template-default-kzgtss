@@ -16,6 +16,7 @@
 <script>
     import autoAnimate from '@formkit/auto-animate';
     import Fuse from 'fuse.js';
+    import cart from '$lib/cart';
     
     export let produse;
     const produseAll = [...produse];
@@ -88,6 +89,9 @@
                     {#each produse as produs}
                         <li>
                             <a href="/produs/{produs.id}">{produs.title} (cat: {produs.category})</a>
+                            <button type="button" on:click={() => cart.add(produs)}>
+                                add to cart
+                            </button>
                         </li>
                     {/each}
                 </ul>
