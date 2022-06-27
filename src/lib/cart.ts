@@ -4,12 +4,15 @@ import _ from 'lodash';
 
 interface CartStore {
     items: Writable<CartProduct[]>,
-    count: Readable<number>,
-    total: Readable<number>,
+    info: Readable<CartInfo>,
     add: Function,
     edit: Function,
     remove: Function,
     reset: Function,
+}
+type CartInfo = {
+    count: number,
+    total: number,
 }
 
 function initialCartItems(loadFromStorage = true): CartProduct[] {
@@ -25,11 +28,12 @@ function initialCartItems(loadFromStorage = true): CartProduct[] {
 }
 
 export const items: Writable<CartProduct[]> = writable(initialCartItems(true));
-export const count: Readable<number> = derived(items, ($items): number => {
-    return $items.map(i => i.qty).reduce((a, b) => a + b, 0);
-});
-export const total: Readable<number> = derived(items, ($items): number => {
-    return $items.map(i => i.price * i.qty).reduce((a, b) => a + b, 0);
+export const info: Readable<CartInfo> = derived(items, ($items): CartInfo => {
+    let sum = (i: number[]) => i.reduce((a: number, b: number) => a + b, 0);
+    return {
+        count: sum($items.map(i => i.qty)),
+        total: sum($items.map(i => i.price * i.qty)),
+    };
 });
 
 const save = (value: any): any => {
@@ -38,6 +42,11 @@ const save = (value: any): any => {
     } catch (e) {}
     return value;
 }
+const updateItems = (callback: (state: CartProduct[]) => CartProduct[]): void => {
+    items.update((state: CartProduct[]) => {
+        return save(callback(state));
+    });
+};
 
 export const add = (item: Product) => {
     let existingItem = get(items).find((cartItem: CartProduct) => cartItem.id == item.id);
@@ -47,14 +56,14 @@ export const add = (item: Product) => {
         });
         return;
     }
-    items.update(state => {
+    updateItems(state => {
         let product: CartProduct = {
             ...item,
             qty: 1,
             key: `key-${item.id}-${Date.now()}`,
         };
         state.push(product);
-        return save(state);
+        return state;
     });
 }
 
@@ -62,7 +71,7 @@ export const edit = (key: string, toUpdate: any) => {
     if (typeof toUpdate?.qty !== 'undefined' && toUpdate?.qty < 1) {
         return remove(key);
     }
-    items.update(state => {
+    updateItems(state => {
         let newItems = _.cloneDeep(state);
         newItems = newItems.map((item: CartProduct) => {
             if (item.key == key) {
@@ -70,17 +79,17 @@ export const edit = (key: string, toUpdate: any) => {
             }
             return item;
         });
-        return save(newItems);
+        return newItems;
     });
 }
 
 export const remove = (key: string) => {
-    items.update(state => {
+    updateItems(state => {
         let newItems = _.cloneDeep(state);
         newItems = newItems.filter((item: CartProduct) => {
             return (item.key !== key);
         });
-        return save(newItems);
+        return newItems;
     });
 }
 
@@ -90,8 +99,7 @@ export const reset = () => {
 
 const cart: CartStore = {
     items,
-    count,
-    total,
+    info,
     add,
     edit,
     remove,

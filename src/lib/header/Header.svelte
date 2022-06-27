@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import logo from './svelte-logo.svg';
-	import cart, {items as cartItems, count as cartCount, total as cartTotal } from '$lib/cart';
+	import cart, {items as cartItems, info as cartInfo } from '$lib/cart';
     import autoAnimate from '@formkit/auto-animate';
 </script>
 
@@ -18,9 +18,9 @@
 
 	<div class="corner">
 		<!-- TODO put something else here? github link? -->
-		Cart count: {$cartCount}
+		Cart count: {$cartInfo.count}
 		<div class="cart-popup">
-			<p style="padding: 10px;">Cart ({$cartCount})</p>
+			<p style="padding: 10px;">Cart ({$cartInfo.count})</p>
 			<ul use:autoAnimate style="border-top: 1px solid #ccc; height: auto; display: flex; flex-direction: column;">
 				{#each $cartItems as product}
 					<li style="
@@ -43,7 +43,7 @@
 					</li>
 				{/each}
 			</ul>
-			<p style="padding: 10px;">Total: ${$cartTotal}</p>
+			<p style="padding: 10px;">Total: ${$cartInfo.total}</p>
 		</div>
 	</div>
 </header>
