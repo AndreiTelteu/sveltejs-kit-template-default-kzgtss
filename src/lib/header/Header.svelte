@@ -1,132 +1,77 @@
 <script>
-	import { page } from '$app/stores';
-	import logo from './svelte-logo.svg';
-	import cart, {items as cartItems, info as cartInfo } from '$lib/cart';
+    import { page } from '$app/stores';
+    import {
+        Navbar,
+        NavBrand,
+        Dropdown,
+        DropdownHeader,
+        DropdownItem,
+        DropdownDivider,
+        NavHamburger,
+        NavUl,
+        NavLi,
+        Button,
+        Badge,
+    } from 'flowbite-svelte'
+    import logo from './svelte-logo.svg';
+    import cart, {items as cartItems, info as cartInfo } from '$lib/cart';
     import autoAnimate from '@formkit/auto-animate';
+    
+    let openCart = true;
+    const removeCart = (event, product) => {
+        event.stopPropagation();
+        cart.remove(product.key);
+    }
 </script>
 
-<header>
-
-	<nav>
-		<ul>
-			<li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
-			<li class:active={$page.url.pathname === '/produse'}>
-				<a sveltekit:prefetch href="/produse">produse</a>
-			</li>
-		</ul>
-	</nav>
-
-	<div class="corner">
-		<!-- TODO put something else here? github link? -->
-		Cart count: {$cartInfo.count}
-		<div class="cart-popup">
-			<p style="padding: 10px;">Cart ({$cartInfo.count})</p>
-			<ul use:autoAnimate style="border-top: 1px solid #ccc; height: auto; display: flex; flex-direction: column;">
-				{#each $cartItems as product}
-					<li style="
-						border-bottom: 1px solid #ccc; width: 100%; flex-shrink: 0;
-						display: flex; flex-direction: row; align-items: center; justify: content;
-					">
-						<div style="padding: 10px;">
-							<img src={product.thumbnail} alt=" " style="width: 60px; height: 60px;" />
-						</div>
-						<div style="flex: 1; padding: 10px;">
-							{product.title}
-							<br>
-							{product.qty} x ${product.price}
-							<button type="button" on:click={() => cart.edit(product.key, { qty: product.qty - 1 })}>-</button>
-							<button type="button" on:click={() => cart.edit(product.key, { qty: product.qty + 1 })}>+</button>
-						</div>
-						<div style="padding: 10px;">
-							<button type="button" on:click={() => cart.remove(product.key)}>X</button>
-						</div>
-					</li>
-				{/each}
-			</ul>
-			<p style="padding: 10px;">Total: ${$cartInfo.total}</p>
-		</div>
-	</div>
-</header>
-
-<style>
-	header {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.corner {
-		position: relative;
-		padding: 10px 20px;
-	}
-	.corner .cart-popup {
-		position: absolute;
-		width: 400px;
-		height: auto;
-		background-color:rgba(255, 255, 255, 0.95);
-		top: 100%;
-		right: 0;
-		opacity: 0;
-		transform: translateX(100%);
-		transition: all 150ms ease-in-out;
-		border: 1px solid #ccc;
-	}
-	.corner:hover .cart-popup {
-		transform: translateX(0%);
-		opacity: 1;
-	}
-
-
-	nav {
-		display: flex;
-		justify-content: center;
-		--background: rgba(255, 255, 255, 0.9);
-	}
-
-	ul {
-		position: relative;
-		padding: 0;
-		margin: 0;
-		height: 3em;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		list-style: none;
-		background: var(--background);
-		background-size: contain;
-	}
-
-	li {
-		position: relative;
-		height: 100%;
-	}
-
-	li.active::before {
-		--size: 6px;
-		content: '';
-		width: 0;
-		height: 0;
-		position: absolute;
-		top: 0;
-		left: calc(50% - var(--size));
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid var(--accent-color);
-	}
-
-	nav a {
-		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 1em;
-		color: var(--heading-color);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
-	}
-
-	a:hover {
-		color: var(--accent-color);
-	}
-</style>
+<Navbar let:hidden let:toggle rounded={true}>
+    <NavBrand href="/">
+        <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+            Svelte Store
+        </span>
+    </NavBrand>
+    <NavUl {hidden}>
+        <NavLi href="/" active={$page.url.pathname === '/'} sveltekit:prefetch>
+            Home
+        </NavLi>
+        <NavLi href="/produse" active={$page.url.pathname === '/produse'} sveltekit:prefetch>
+            Produse
+        </NavLi>
+    </NavUl>
+    <div class="flex relative">
+        <Dropdown arrowIcon={false} inline={true} class="w-[400px]">
+            <Button size="sm" color="light" slot="label">
+                <div class="pl-4 pr-2">Cart</div>
+                <Badge name="{$cartInfo.count}" />
+            </Button>
+            <DropdownHeader>
+                Cart ({$cartInfo.count})
+            </DropdownHeader>
+            {#each $cartItems as product}
+                <DropdownItem class="flex flex-row items-center">
+                    <div class="mr-2">
+                        <img src={product.thumbnail} alt=" " class="w-[60px] h-[60px] object-cover" />
+                    </div>
+                    <div class="flex-1 p-2">
+                        {product.title}
+                        <br>
+                        {product.qty} x ${product.price}
+                    </div>
+                    <div class="p-2">
+                        <Button size="sm" color="light" type="button" on:click={(event) => removeCart(event, product)}>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </Button>
+                    </div>
+                </DropdownItem>
+            {/each}
+            <DropdownDivider />
+            <DropdownHeader>
+                Total: ${$cartInfo.total}
+            </DropdownHeader>
+            <div class="p-1 text-center">
+                Checkout
+            </div>
+        </Dropdown>
+        <NavHamburger on:click={toggle} />
+    </div>
+</Navbar>
