@@ -15,6 +15,7 @@
 
 <script>
     import autoAnimate from '@formkit/auto-animate';
+    import { Button, FloatingLabelInput, Select, EcommerceCard, Badge, Card } from 'flowbite-svelte';
     import Fuse from 'fuse.js';
     import cart from '$lib/cart';
     
@@ -79,73 +80,66 @@
 </svelte:head>
 
 <div class="content">
-    <h1>lista</h1>
-    <div style="display: flex; flex-direction:row; align-items: flex-start;">
+    <!-- <h1>lista</h1> -->
+    <div style="display: flex; flex-direction:row; align-items: flex-start; gap: 20px;">
         <div style="width:80%">
             {#if loading == true}
                 <span>loading</span>
             {:else}
-                <div use:autoAnimate style="appearance: none; display: flex; flex-direction: row; flex-wrap: wrap; width: 100%;">
+                <div use:autoAnimate class="grid grid-cols-4 gap-4">
                     {#each produse as produs}
-                        <div style="width: 200px; display: inline-block; border-bottom: 1px solid #ccc; margin: 10px; background: #fff;">
-                            <a href="/produs/{produs.id}" style="display: flex; flex-direction: column; justify-content: center;">
-                                <div style="width: 100%; text-align: center; border-bottom: 1px solid #ccc; padding: 10px;">
-                                    {#if produs.thumbnail}
-                                        <img src={produs.thumbnail} alt=" " style="width: 100%; height: 80px; object-fit: contain;" />
-                                    {/if}
-                                </div>
-                                <div style="padding: 10px;">
-                                    {produs.title} <br> {produs.category}
-                                </div>
-                            </a>
-                            <div style="text-align: center; border-top: 1px solid #ccc; padding: 10px;">
-                                ${produs.price} <br>
-                                <button type="button" on:click={() => cart.add(produs)}>
-                                    add to cart
-                                </button>
-                            </div>
-                        </div>
+                        <EcommerceCard
+                            title={produs.title}
+                            href="/produs/{produs.id}"
+                            price="${produs.price}"
+                            img={{ src: api.img('width:250;height:190', produs.thumbnail), alt: produs.title }}
+                            stars={0}
+                            btnText="Buy"
+                        >
+                            {produs.category}
+                        </EcommerceCard>
                     {/each}
                     </div>
             {/if}
         </div>
-        <form
-            on:submit|preventDefault={applyFilters}
-            style="display: flex; flex-direction:column; gap: 20px; width: 20%;"
-        >
-            <label>
-                <b>Search</b>
-                <input name="search" bind:value={filters.search} style="width:100%;" />
-            </label>
-            <label>
-                <b>Categorie</b>
-                <select name="category" bind:value={filters.category} style="width:100%;">
-                    <option value={null}>--</option>
-                    {#each categorii as cat}
-                        <option value={cat}>{cat}</option>
+        <div class="w-[20%]">
+        <Card header="Filters">
+            <form
+                slot="paragraph"
+                on:submit|preventDefault={applyFilters}
+                style="display: flex; flex-direction:column; gap: 20px; width: 100%;"
+            >
+                <FloatingLabelInput label="Search" name="search" type="search" bind:value={filters.search} />
+                <div>
+                    <Select label="Category" name="category" bind:value={filters.category}>
+                        <option value={null}>--</option>
+                        {#each categorii as cat}
+                            <option value={cat}>{cat}</option>
+                        {/each}
+                    </Select>
+                </div>
+                <div use:autoAnimate>
+                    {#each filtersActive as badge}
+                        <span style="background-color: aqua; border-radius: 6px; display: inline-block; padding: 2px 4px; margin-right: 10px">
+                            {badge[0]} <b>{badge[1]}</b>
+                            <span on:click={() => filters[badge[2]] = badge[2] == 'search' ? '' : null} style="cursor:pointer;">X</span>
+                        </span>
                     {/each}
-                </select>
-            </label>
-            <div use:autoAnimate>
-                {#each filtersActive as badge}
-                    <span style="background-color: aqua; border-radius: 6px; display: inline-block; padding: 2px 4px; margin-right: 10px">
-                        {badge[0]} <b>{badge[1]}</b>
-                        <span on:click={() => filters[badge[2]] = badge[2] == 'search' ? '' : null} style="cursor:pointer;">X</span>
-                    </span>
-                {/each}
-            </div>
-            <div>
-                <button type="button" on:click={() => resetFilters()}>Reset</button>
-                <button type="submit">Apply</button>
-            </div>
-        </form>
+                </div>
+                <div class="flex flex-row gap-2">
+                    <Button color="light" on:click={() => resetFilters()}>Reset</Button>
+                    <Button type="submit">Apply</Button>
+                </div>
+            </form>
+        </Card>
+        </div>
     </div>
 </div>
 
 <style>
-    .content {
+    /* .content {
         width: 100%;
         max-width: var(--column-width);
         margin: var(--column-margin-top) auto 0 auto;
-    }
+    } */
 </style>

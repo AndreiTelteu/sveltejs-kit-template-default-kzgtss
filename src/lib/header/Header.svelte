@@ -24,9 +24,9 @@
     }
 </script>
 
-<Navbar let:hidden let:toggle rounded={true}>
+<Navbar let:hidden let:toggle rounded={true} border={1}>
     <NavBrand href="/">
-        <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+        <span class="self-center whitespace-nowrap text-xl font-semibold">
             Svelte Store
         </span>
     </NavBrand>
@@ -39,7 +39,7 @@
         </NavLi>
     </NavUl>
     <div class="flex relative">
-        <Dropdown arrowIcon={false} inline={true} class="w-[400px]">
+        <Dropdown arrowIcon={false} inline={true} class="!w-[400px] z-20 drop-shadow-2xl">
             <Button size="sm" color="light" slot="label">
                 <div class="pl-4 pr-2">Cart</div>
                 <Badge name="{$cartInfo.count}" />
@@ -50,7 +50,7 @@
             {#each $cartItems as product}
                 <DropdownItem class="flex flex-row items-center">
                     <div class="mr-2">
-                        <img src={product.thumbnail} alt=" " class="w-[60px] h-[60px] object-cover" />
+                        <img src={product.thumbnail} alt=" " class="w-[60px] h-[60px] object-cover shrink-0" />
                     </div>
                     <div class="flex-1 p-2">
                         {product.title}
