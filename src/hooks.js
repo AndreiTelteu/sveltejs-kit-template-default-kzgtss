@@ -2,11 +2,21 @@ import * as cookie from 'cookie';
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle = async ({ event, resolve }) => {
+	
+	// if (event.url.pathname.startsWith('/thumb')) {
+	// 	// return new Response(JSON.stringify({a: event}), {
+	// 	// 	headers: {
+	// 	// 		'Cache-Control': 'max-age=0, s-maxage=3600',
+	// 	// 		'Content-Type': 'application/json',
+	// 	// 	},
+	// 	// });
+	// }
+	
 	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
 	event.locals.userid = cookies['userid'] || crypto.randomUUID();
-
+	
 	const response = await resolve(event);
-
+	
 	if (!cookies['userid']) {
 		// if this is the first time the user has visited this app,
 		// set a cookie so that we recognise them when they return
