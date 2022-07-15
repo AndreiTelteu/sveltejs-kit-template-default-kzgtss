@@ -37,6 +37,13 @@ api.img = (query: string, image: string) => {
     }
     if (!imageWidth && !imageHeight) return image;
     
+    // --- CDN method - local thumb script
+    let cdnurl = '/thumb/';
+    let qi = []
+    if (imageWidth)  qi.push('w.' + imageWidth);
+    if (imageHeight) qi.push('h.' + imageHeight);
+    return cdnurl + qi.join('-') + '/' + image.replace('://', '/');
+    
     //  CDN method - statically.io
     // let params = ['f=auto'];
     // if (imageWidth)  params.push('w=' + imageWidth);
@@ -46,13 +53,13 @@ api.img = (query: string, image: string) => {
     //     .replace('/', '/' + params.join(',') + '/');
     
     // --- CDN method - images.weserv.nl
-    let cdnurl = 'https://images.weserv.nl/?l=3&q=85&';
-    if (imageWidth)  cdnurl += 'w=' + imageWidth + '&';
-    if (imageHeight) cdnurl += 'h=' + imageHeight + '&';
-    if (imageWidth && imageHeight) cdnurl += 'fit=cover&';
-    cdnurl += 'url=' + encodeURIComponent(image);
-    cdnurl += '&errorredirect=' + encodeURIComponent(image);
-    return cdnurl;
+    // let cdnurl = 'https://images.weserv.nl/?l=3&q=85&';
+    // if (imageWidth)  cdnurl += 'w=' + imageWidth + '&';
+    // if (imageHeight) cdnurl += 'h=' + imageHeight + '&';
+    // if (imageWidth && imageHeight) cdnurl += 'fit=cover&';
+    // cdnurl += 'url=' + encodeURIComponent(image);
+    // cdnurl += '&errorredirect=' + encodeURIComponent(image);
+    // return cdnurl;
     
 };
 
